@@ -5,9 +5,21 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
 
 public class OnlineCoursesAnalyzer {
 
@@ -349,51 +361,53 @@ public class OnlineCoursesAnalyzer {
 
     public OnlineCoursesAnalyzer(String datasetPath) throws IOException {
         datasetPath = datasetPath;
-        courses = Files.lines(Paths.get(datasetPath), StandardCharsets.UTF_8).skip(1).map(Course::new)
-                .filter(course->course.isInputValid()).toList();
+        courses = Files.lines(Paths.get(datasetPath), StandardCharsets.UTF_8)
+                .skip(1)
+                .map(Course::new)
+                .filter(course -> course.isInputValid()).toList();
         instructors = new TreeSet<>();
         institutions = new TreeSet<>();
         institution_courseSubject = new TreeSet<>();
-        for(Course course:courses){
+        for(Course course : courses){
             institutions.add(course.institution);
-            for (String courseSubject:course.courseSubjects)
+            for (String courseSubject : course.courseSubjects)
                 institution_courseSubject.add(course.institution+"-"+courseSubject);
             instructors.addAll(course.instructors);
         }
     }
 
-    public static void playRegex(){
+    public static void playRegex() {
 
         String line2 = "Addd, dsdsdsd    rrrrr,and ffff";
         String[] tokens2 = line2.split("(\\s+)?[,\\s+](\\s)?(and\\s)?", -1);
-        for (String s:tokens2){
+        for (String s : tokens2) {
             System.out.println(s.trim());
         }
 
         String line3 = "Addd, dsdsdsd  ,  rrrrr,and ffff";
         String[] tokens3 = line3.split(",\\s*and\\s*|\\s*,\\s*", -1);
-        for (String s:tokens3){
+        for (String s : tokens3) {
             System.out.println(s.trim());
         }
 
 
-        String str6= ",and ";
-        String pat2= ",\\s*and\\s*";
+        String str6 = ",and ";
+        String pat2 = ",\\s*and\\s*";
         System.out.println(Pattern.matches(pat2, str6));
     }
 
-    public static void playRegex2(){
+    public static void playRegex2() {
         String[] tokens = new String[5];
         tokens[4] = "\"Eric Grimson, John Guttag, Chris Terman\"";
-        List<String> inss = Arrays.stream(tokens[4].substring(1, tokens[4].length()-1)
-                .split(",")).map(s->s.strip()).toList();
+        List<String> inss = Arrays.stream(tokens[4].substring(1, tokens[4].length() - 1)
+                .split(",")).map(s -> s.strip()).toList();
         System.out.println(inss);
     }
 
-    public Map<String, Integer> getPtcpCountByInst(){
+    public Map<String, Integer> getPtcpCountByInst() {
         Map<String, Integer> result = courses.stream().collect(
                 Collectors.groupingBy(Course::getInstitution,
-                        Collectors.summingInt(course->(int)course.getParticipants())
+                        Collectors.summingInt(course -> (int) course.getParticipants())
                 )
         );
 
@@ -409,16 +423,16 @@ public class OnlineCoursesAnalyzer {
 
     public Map<String, Integer> getPtcpCountByInstAndSubject(){
         Map<String, Integer> result = courses.stream().collect(
-                Collectors.groupingBy(course -> course.institution+"-"+course.courseSubjectWhole,
-                            Collectors.summingInt(course -> (int)course.getParticipants())
+                Collectors.groupingBy(course -> course.institution + "-" + course.courseSubjectWhole,
+                            Collectors.summingInt(course -> (int) course.getParticipants())
                 )
         );
         result = result.entrySet().stream()
                 .sorted(
                     (e1, e2) -> {
-                        if(e1.getValue().equals(e2.getValue())){
+                        if (e1.getValue().equals(e2.getValue())) {
                             return e1.getKey().compareTo(e2.getKey());
-                        } else{
+                        } else {
                             return e2.getValue() - e1.getValue();
                         }
                     }
@@ -430,26 +444,29 @@ public class OnlineCoursesAnalyzer {
         return result;
     }
 
-    public Map<String, List<List<String>>> getCourseListOfInstructor(){
+    public Map<String, List<List<String>>> getCourseListOfInstructor() {
         Map<String, List<List<String>>> result = new TreeMap<>();
         Map<String, List<List<String>>> finalResult = result;
         courses.forEach(
                 course -> {
-                    for (String instructor:course.instructors){
-                        if (!finalResult.containsKey(instructor)){
+                    for (String instructor : course.instructors) {
+                        if (!finalResult.containsKey(instructor)) {
                             List<String> independent = new ArrayList<>();
                             List<String> cooperate = new ArrayList<>();
-                            List<List<String> >twoLists = List.of(independent, cooperate);
+                            List<List<String>>twoLists = List.of(independent, cooperate);
                             finalResult.put(instructor, twoLists);
                         }
-                        if (course.instructors.size()==1){
+                        if (course.instructors.size() == 1) {
                             List<String> independent = finalResult.get(instructor).get(0);
-                            if(!independent.contains(course.courseTitle))
+                            if (!independent.contains(course.courseTitle)) {
                                 independent.add(course.courseTitle);
-                        } else {
+                            }
+                        }
+                        else {
                             List<String> cooperate = finalResult.get(instructor).get(1);
-                            if(!cooperate.contains(course.courseTitle))
+                            if (!cooperate.contains(course.courseTitle)) {
                                 cooperate.add(course.courseTitle);
+                            }
                         }
                     }
                 }
@@ -474,7 +491,7 @@ public class OnlineCoursesAnalyzer {
 
     public List<String> getCourses2(int topK, String by){
         List<String> result = null;
-        if(by.equals("hours")){
+        if (by.equals("hours")) {
             result = courses.stream()
                     .collect(Collectors.groupingBy(
                                     course -> course.courseTitle,
