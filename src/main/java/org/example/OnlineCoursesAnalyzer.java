@@ -70,24 +70,24 @@ public class OnlineCoursesAnalyzer {
                 institution = tokens[0];
                 courseNumber = tokens[1];
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-                lauchDate=simpleDateFormat.parse(tokens[2]);
-                if (tokens[3].charAt(0)=='\"'){
-                    courseTitle = tokens[3].substring(1, tokens[3].length()-1);
-                } else{
+                lauchDate = simpleDateFormat.parse(tokens[2]);
+                if (tokens[3].charAt(0) == '\"') {
+                    courseTitle = tokens[3].substring(1, tokens[3].length() - 1);
+                } else {
                     courseTitle = tokens[3];
                 }
 
-                if (tokens[4].charAt(0) == '\"'){
-                    instructors = Arrays.stream(tokens[4].substring(1, tokens[4].length()-1).split(",")).map(s->s.strip()).toList();
-                } else{
+                if (tokens[4].charAt(0) == '\"') {
+                    instructors = Arrays.stream(tokens[4].substring(1, tokens[4].length() - 1)
+                            .split(",")).map(s -> s.strip()).toList();
+                } else {
                     instructors = List.of(tokens[4]);
                 }
-
-                if(tokens[5].charAt(0)=='\"'){
+                if (tokens[5].charAt(0) == '\"') {
                     courseSubjects = Arrays.stream(tokens[5].substring(1, tokens[5].length()-1).split(",\\s*and\\s*|\\s*,\\s*" , -1))
-                            .map(s->s.strip()).toList();
-                    courseSubjectWhole = tokens[5].substring(1,tokens[5].length()-1);
-                } else{
+                            .map(s -> s.strip()).toList();
+                    courseSubjectWhole = tokens[5].substring(1, tokens[5].length() - 1);
+                } else {
                     courseSubjects = List.of(tokens[5]);
                     courseSubjectWhole = tokens[5];
                 }
@@ -109,7 +109,6 @@ public class OnlineCoursesAnalyzer {
                 femalePercent = Double.parseDouble(tokens[21]);
                 bachelorOrHigherPercent = Double.parseDouble(tokens[22]);
                 inputValid = true;
-
             }
             catch (Exception e){
                 e.printStackTrace();
